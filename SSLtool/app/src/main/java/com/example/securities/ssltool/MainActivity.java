@@ -7,6 +7,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.*;
+import java.net.*;
+
+import javax.net.ssl.HttpsURLConnection;
+
 public class MainActivity extends ActionBarActivity {
 
     TextView t;
@@ -41,11 +46,42 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
-    public void goToHostname (View view){
+    public void goToHostname (View view) {
         t = new TextView(this);
-        t = (TextView)findViewById(R.id.textView2);
+        t = (TextView) findViewById(R.id.textView2);
         t.setText("Checking Hostname...");
+
+        try {
+            URL url = new URL("https://www.google.com");
+            HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+            //readStream(con.getInputStream());
+            } catch (Exception e) {
+             e.printStackTrace();
+        }
     }
+
+
+  /*  private void readStream(InputStream in) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line = "";
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }*/
+
 
     public void goToDate (View view){
         t = new TextView(this);
