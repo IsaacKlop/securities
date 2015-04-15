@@ -7,11 +7,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-
-
 public class MainActivity extends ActionBarActivity {
 
     TextView t;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,9 +40,23 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     public void goToHostname (View view){
         t = new TextView(this);
         t = (TextView)findViewById(R.id.textView2);
         t.setText("Checking Hostname...");
     }
+
+    public void goToDate (View view){
+        t = new TextView(this);
+        t = (TextView)findViewById(R.id.textView2);
+        t.setText("Checking Date...");
+    }
+
+    public void goToCA (View view){
+        t = new TextView(this);
+        t = (TextView)findViewById(R.id.textView2);
+        t.setText("Checking CA...");
+    }
+
 }
