@@ -3,6 +3,7 @@ package com.example.securities.ssltool;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,7 +55,9 @@ public class MainActivity extends ActionBarActivity {
         t = new TextView(this);
         t = (TextView) findViewById(R.id.textView2);
         t.setText("Cipher Suite : " + outputCipher + "\n" +
-                  "Hostname : " + outputHostname);
+                "Hostname : " + outputHostname);
+
+        outputData();
     }
 
     private class backOperation extends AsyncTask<String, Void, String> {
@@ -90,6 +93,33 @@ public class MainActivity extends ActionBarActivity {
         t = new TextView(this);
         t = (TextView)findViewById(R.id.textView2);
         t.setText("Checking CA...");
+    }
+
+    public void outputData () {
+        new Thread(new Runnable() {
+            public void run() {
+
+                try{
+                    URL url = new URL("http://192.168.56.1:8080/AppResponse");
+                    URLConnection connection = url.openConnection();
+
+                    connection.setDoOutput(true);
+                    OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+
+                    out.write("test message");
+                    out.close();
+
+                    Log.d("Connection: ", "Successful");
+
+                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    in.close();
+
+                }catch(Exception e)
+                {
+                    Log.d("Exception",e.toString());
+                }
+            }
+        }).start();
     }
 
 }
