@@ -15,6 +15,7 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.security.auth.x500.X500Principal;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -26,6 +27,7 @@ public class MainActivity extends ActionBarActivity {
     String outputHostname;
     Date outputAfterDate;
     Date outputNotBeforeDate;
+    X500Principal outputCA;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +61,11 @@ public class MainActivity extends ActionBarActivity {
         new backOperation().execute();
         t = new TextView(this);
         t = (TextView) findViewById(R.id.textView2);
-        t.setText("Cipher Suite : " + outputCipher           + "\n" +
-                  "Hostname : " + outputHostname             + "\n" +
-                  "Expire Date : " + outputAfterDate         + "\n" +
-                  "Start Date :  " + outputNotBeforeDate     + "\n");
+        t.setText("Cipher Suite : " + outputCipher             + "\n" +
+                  "\nHostname :\n " + outputHostname             + "\n" +
+                  "\nExpire Date :\n " + outputAfterDate         + "\n" +
+                  "\nStart Date :\n  " + outputNotBeforeDate     + "\n" +
+                  "\nCA :\n "          + outputCA                + "\n");
     }
 
     private class backOperation extends AsyncTask<String, Void, String> {
@@ -89,6 +92,7 @@ public class MainActivity extends ActionBarActivity {
                         try {
                             outputAfterDate = (((X509Certificate) cert).getNotAfter());
                             outputNotBeforeDate = (((X509Certificate) cert).getNotBefore());
+                            outputCA = (((X509Certificate) cert).getIssuerX500Principal());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
