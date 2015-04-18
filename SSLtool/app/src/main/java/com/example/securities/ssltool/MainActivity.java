@@ -10,14 +10,16 @@ import android.widget.TextView;
 
 import java.io.*;
 import java.net.*;
-
 import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends ActionBarActivity {
 
     TextView t;
-    String HTTPS_URL = ("https://www.google.com");
     URL url;
+    String HTTPS_URL = ("https://www.google.com");
+    String HTTP_URL  = ("google.com");
+    String outputCipher;
+    String outputHostname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +50,11 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void goToHostname (View view) {
+        new backOperation().execute();
         t = new TextView(this);
         t = (TextView) findViewById(R.id.textView2);
-        t.setText("Checking Hostname...");
-        new backOperation().execute();
+        t.setText("Cipher Suite : " + outputCipher + "\n" +
+                  "Hostname : " + outputHostname);
     }
 
     private class backOperation extends AsyncTask<String, Void, String> {
@@ -61,17 +64,19 @@ public class MainActivity extends ActionBarActivity {
             try {
                 url = new URL(HTTPS_URL);
                 HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+
+                //Grabs Cipher Suite from host
                 InputStream in = con.getInputStream();
-                print_https_cert(con);
+                outputCipher = con.getCipherSuite();
+
+                //Grabs hostname of HTTP host
+                InetAddress Address = InetAddress.getByName(HTTP_URL);
+                outputHostname = Address.getHostName();
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
             return("");
-        }
-    }
-    private void print_https_cert(HttpsURLConnection con){
-        if (con != null){
-            System.out.println("Cipher Suite : " + con.getCipherSuite());
         }
     }
 
