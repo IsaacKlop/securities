@@ -1,5 +1,6 @@
 package com.example.securities.ssltool;
 
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,13 +16,14 @@ import javax.net.ssl.HttpsURLConnection;
 public class MainActivity extends ActionBarActivity {
 
     TextView t;
+    String HTTPS_URL = ("https://www.google.com");
+    URL url;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -45,43 +47,33 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
     public void goToHostname (View view) {
         t = new TextView(this);
         t = (TextView) findViewById(R.id.textView2);
         t.setText("Checking Hostname...");
-
-        try {
-            URL url = new URL("https://www.google.com");
-            HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
-            //readStream(con.getInputStream());
-            } catch (Exception e) {
-             e.printStackTrace();
-        }
+        new backOperation().execute();
     }
 
+    private class backOperation extends AsyncTask<String, Void, String> {
 
-  /*  private void readStream(InputStream in) {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(in));
-            String line = "";
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                url = new URL(HTTPS_URL);
+                HttpsURLConnection con = (HttpsURLConnection) url.openConnection();
+                InputStream in = con.getInputStream();
+                print_https_cert(con);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            return("");
         }
-    }*/
-
+    }
+    private void print_https_cert(HttpsURLConnection con){
+        if (con != null){
+            System.out.println("Cipher Suite : " + con.getCipherSuite());
+        }
+    }
 
     public void goToDate (View view){
         t = new TextView(this);
