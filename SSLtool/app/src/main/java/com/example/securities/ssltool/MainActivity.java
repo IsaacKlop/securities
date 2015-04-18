@@ -3,7 +3,6 @@ package com.example.securities.ssltool;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,16 +10,22 @@ import android.widget.TextView;
 
 import java.io.*;
 import java.net.*;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+
 import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends ActionBarActivity {
 
     TextView t;
     URL url;
-    String HTTPS_URL = ("https://www.google.com");
-    String HTTP_URL  = ("google.com");
+    String HTTPS_URL = ("https://www.facebook.com");
+    String HTTP_URL  = ("facebook.com");
     String outputCipher;
     String outputHostname;
+    Date outputAfterDate;
+    Date outputNotBeforeDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +59,10 @@ public class MainActivity extends ActionBarActivity {
         new backOperation().execute();
         t = new TextView(this);
         t = (TextView) findViewById(R.id.textView2);
-        t.setText("Cipher Suite : " + outputCipher + "\n" +
-                "Hostname : " + outputHostname);
-
-        outputData();
+        t.setText("Cipher Suite : " + outputCipher           + "\n" +
+                  "Hostname : " + outputHostname             + "\n" +
+                  "Expire Date : " + outputAfterDate         + "\n" +
+                  "Start Date :  " + outputNotBeforeDate     + "\n");
     }
 
     private class backOperation extends AsyncTask<String, Void, String> {
@@ -76,6 +81,19 @@ public class MainActivity extends ActionBarActivity {
                 InetAddress Address = InetAddress.getByName(HTTP_URL);
                 outputHostname = Address.getHostName();
 
+                //Grabs details of certificate host
+                Certificate[]certs = con.getServerCertificates();
+                for (Certificate cert : certs){
+                    //System.out.println("Certificate is: " + cert);
+                    if(cert instanceof X509Certificate) {
+                        try {
+                            outputAfterDate = (((X509Certificate) cert).getNotAfter());
+                            outputNotBeforeDate = (((X509Certificate) cert).getNotBefore());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -93,33 +111,6 @@ public class MainActivity extends ActionBarActivity {
         t = new TextView(this);
         t = (TextView)findViewById(R.id.textView2);
         t.setText("Checking CA...");
-    }
-
-    public void outputData () {
-        new Thread(new Runnable() {
-            public void run() {
-
-                try{
-                    URL url = new URL("http://192.168.56.1:8080/AppResponse");
-                    URLConnection connection = url.openConnection();
-
-                    connection.setDoOutput(true);
-                    OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
-
-                    out.write("test message");
-                    out.close();
-
-                    Log.d("Connection: ", "Successful");
-
-                    BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    in.close();
-
-                }catch(Exception e)
-                {
-                    Log.d("Exception",e.toString());
-                }
-            }
-        }).start();
     }
 
 }
