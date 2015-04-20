@@ -8,10 +8,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import javax.security.auth.x500.X500Principal;
+
 
 import java.io.*;
 import java.net.*;
 import javax.net.ssl.HttpsURLConnection;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -21,6 +27,10 @@ public class MainActivity extends ActionBarActivity {
     String HTTP_URL  = ("google.com");
     String outputCipher;
     String outputHostname;
+    Date outputAfterDate;
+    Date outputNotBeforeDate;
+    X500Principal outputCA;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,34 +38,37 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//
+//        //noinspection SimplifiableIfStatement
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     public void goToHostname (View view) {
         new backOperation().execute();
         t = new TextView(this);
         t = (TextView) findViewById(R.id.textView2);
-        t.setText("Cipher Suite : " + outputCipher + "\n" +
-                "Hostname : " + outputHostname);
+        t.setText("Cipher Suite : " + outputCipher             + "\n" +
+                "\nHostname :\n " + outputHostname             + "\n" +
+                "\nExpire Date :\n " + outputAfterDate         + "\n" +
+                "\nStart Date :\n  " + outputNotBeforeDate     + "\n" +
+                "\nCA :\n "          + outputCA                + "\n");
 
         outputData();
     }
@@ -75,6 +88,21 @@ public class MainActivity extends ActionBarActivity {
                 //Grabs hostname of HTTP host
                 InetAddress Address = InetAddress.getByName(HTTP_URL);
                 outputHostname = Address.getHostName();
+
+                //Grabs details of certificate host
+                Certificate[]certs = con.getServerCertificates();
+                for (Certificate cert : certs){
+                    //System.out.println("Certificate is: " + cert);
+                    if(cert instanceof X509Certificate) {
+                        try {
+                            outputAfterDate = (((X509Certificate) cert).getNotAfter());
+                            outputNotBeforeDate = (((X509Certificate) cert).getNotBefore());
+                            outputCA = (((X509Certificate) cert).getIssuerX500Principal());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -100,7 +128,7 @@ public class MainActivity extends ActionBarActivity {
             public void run() {
 
                 try{
-                    URL url = new URL("http://192.168.56.1:8080/AppResponse");
+                    URL url = new URL("http://83.81.49.19:8080/AppResponse/AppResponse");
                     URLConnection connection = url.openConnection();
 
                     connection.setDoOutput(true);
