@@ -35,7 +35,9 @@ public class AppResponse extends HttpServlet {
             String receivedString = new String(input);
             response.setStatus(HttpServletResponse.SC_OK);
             
-            System.out.println(receivedString);
+            PrintWriter writer = new PrintWriter("//var//lib//tomcat7//webapps//SSLTestServer//log.txt", "UTF-8");
+    		writer.println(receivedString + "\n");
+    		writer.close();
                         
         } catch (IOException e) {
  
