@@ -33,25 +33,18 @@ package alex.ssltoolmessage;
         import alex.ssltoolmessage.R;
 
 public class SimpleHttpClient {
-    /** The time it takes for our client to timeout */
+
     public static final int HTTP_TIMEOUT = 5 * 1000; // milliseconds
 
-    /** Single instance of our HttpClient */
     private static HttpClient mHttpClient;
 
-    /**
-     * Get our single instance of our HttpClient object.
-     *
-     * @return an HttpClient object with connection parameters set
-     */
     private static HttpClient getHttpClient() {
         if (mHttpClient == null) {
-            //sets up parameters
             HttpParams params = new BasicHttpParams();
             HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
             HttpProtocolParams.setContentCharset(params, "utf-8");
             params.setBooleanParameter("http.protocol.expect-continue", false);
-            //registers schemes for both http and https
+
             SchemeRegistry registry = new SchemeRegistry();
             registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
             registry.register(new Scheme("https", newSslSocketFactory(), 443));
@@ -66,18 +59,11 @@ public class SimpleHttpClient {
             KeyStore trusted = KeyStore.getInstance("BKS");
             InputStream in = MainActivity.getAppContext().getResources().openRawResource(R.raw.keystore);
             try {
-                // Keystore password comes in place of 222222
-                trusted.load(in, "222222".toCharArray());
+                trusted.load(in, "Isaac311290".toCharArray());
             } finally {
                 in.close();
             }
-          /*
-           * If you use STRICT_HOSTNAME_VERIFIER, the the host name in the URL should match with
-           * the host name in the server certificate. In this application it is 192.168.43.1
-           *
-           * If you do not want to check the host name and simply want to connect to the URL, then use ALLOW_ALL_HOSTNAME_VERIFIER
-           *
-           */
+
             //HostnameVerifier hostnameVerifier = org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
             HostnameVerifier hostnameVerifier = org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
             SSLSocketFactory socketFactory = new SSLSocketFactory(trusted);
@@ -88,15 +74,6 @@ public class SimpleHttpClient {
         }
     }
 
-    /**
-     * Performs an HTTP Post request to the specified url with the
-     * specified parameters.
-     *
-     * @param url The web address to post the request to
-     * @param postParameters The parameters to send via the request
-     * @return The result of the request
-     * @throws Exception
-     */
     public static String executeHttpPost(String url, ArrayList<NameValuePair> postParameters) throws Exception {
         BufferedReader in = null;
         try {
@@ -129,13 +106,6 @@ public class SimpleHttpClient {
         }
     }
 
-    /**
-     * Performs an HTTP GET request to the specified url.
-     *
-     * @param url The web address to post the request to
-     * @return The result of the request
-     * @throws Exception
-     */
     public static String executeHttpGet(String url) throws Exception {
         BufferedReader in = null;
         try {
