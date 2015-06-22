@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.security.KeyStore;
+import java.security.Principal;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
@@ -72,8 +73,7 @@ public class SimpleHttpClient {
         BufferedReader in = null;
         try {
             HttpClient client = getHttpClient();
-            System.out.println(checkCert(url));
-            if (true) {
+            if (checkCert(url)) {
                 HttpPost request = new HttpPost(url);
                 UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(postParameters);
                 request.setEntity(formEntity);
@@ -133,22 +133,32 @@ public class SimpleHttpClient {
                     }
                 }
             }
-            String hostname = DN.split(",")[0];
-            System.out.println("Cert: " + hostname + " | " + afterDate + "| " + notBeforeDate + " | " + CA);
+            String commonName = DN.split(",")[0];
+            URL hostNameUrl = con.getURL();
+            System.out.println("Cert: " + commonName + " | " + afterDate + "| " + notBeforeDate + " | " + CA);
+            con.disconnect();
 
-            if (hostname.equals("https://192.168.227.1/SSLTestServer/AppResponse")) {
+            //Check the CN of the certificate against a static value and check the used url against the actual url
+            if (commonName.equals("CN=192.168.227.1")&&hostNameUrl.equals(url)) {
                 check = true;
             } else {
                 check = false;
             }
-            if (true && check) {
+
+            //Check whether the certificate is used within its valid lifetime
+            Date currentDate = new Date();
+            if (currentDate.before(afterDate) && currentDate.after(notBeforeDate) && check) {
             } else {
                 check = false;
             }
-            if (true && check) {
+
+            //Check the signing certificate common name against a static value
+            if (CA.toString().split(",")[0].equals("CN=192.168.227.1") && check) {
             } else {
                 check = false;
             }
+
+            //Public key pinning
         } catch (Exception e) {
             e.printStackTrace();
         }
